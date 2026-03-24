@@ -1,5 +1,5 @@
-const API_KEY = "AIzaSyB8pr1edG4kREiZ0noseC_O9D8isu3kP8E";
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+const API_KEY = "AIzaSyAcgSkOj3UwRrzf_Yrc3wA-N1qZXb_eopI";
+const API_URL =  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${API_KEY}`;
 const MAX_HINTS = 3;
 
 let hints = [];
@@ -33,7 +33,7 @@ async function detectProblem() {
   }
 }
 
-// ── get next hint from Claude API ────────────────────────
+// ── get next hint via background.js ──────────────────────
 async function getNextHint() {
   if (hints.length >= MAX_HINTS) return;
 
@@ -41,10 +41,8 @@ async function getNextHint() {
   btn.disabled = true;
   btn.textContent = "Thinking...";
 
-  // show loading state
   showLoading(true);
 
-  // gather context
   const problemName = document.getElementById("problem-name").textContent;
   let code = "";
 
@@ -53,21 +51,15 @@ async function getNextHint() {
   }
 
   const hintNumber = hints.length + 1;
-
   const prompt = buildPrompt(problemName, hintNumber, hints, code);
 
-try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: `You are a peer tutor helping someone solve a LeetCode problem.
+  try {
+    const body = {
+      contents: [
+        {
+          parts: [
+            {
+              text: `You are a peer tutor helping someone solve a LeetCode problem.
 Give hint number ${hintNumber} of 3. Follow these rules strictly:
 - Hint 1: Point to the right general thinking direction. No approach names.
 - Hint 2: Name the data structure or technique. Ask a guiding question.
@@ -77,19 +69,24 @@ Give hint number ${hintNumber} of 3. Follow these rules strictly:
 - Sound like a helpful peer, not a textbook.
 
 ${prompt}`
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          maxOutputTokens: 300,
-          temperature: 0.7
+            }
+          ]
         }
-      })
+      ],
+      generationConfig: {
+        maxOutputTokens: 300,
+        temperature: 0.7
+      }
+    };
+
+    // route through background.js to avoid CORS issues
+    const response = await chrome.runtime.sendMessage({
+      type: "GET_HINT",
+      apiUrl: API_URL,
+      body: body
     });
 
-    const data = await response.json();
-    const hintText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Couldn't get a hint. Try again.";
+    const hintText = response?.hint || "Couldn't get a hint. Try again.";
     hints.push(hintText);
     saveState();
     showLoading(false);
@@ -165,7 +162,6 @@ function renderHints() {
     });
   }
 
-  // update dots
   for (let i = 1; i <= MAX_HINTS; i++) {
     const dot = document.getElementById(`dot-${i}`);
     dot.className = "hdot";
@@ -173,11 +169,9 @@ function renderHints() {
     else if (i === hints.length + 1) dot.classList.add("active");
   }
 
-  // update counter
   document.getElementById("hint-counter").textContent =
     `${hints.length} of ${MAX_HINTS}`;
 
-  // update button
   const btn = document.getElementById("btn-next");
   btn.disabled = hints.length >= MAX_HINTS;
   btn.textContent = hints.length >= MAX_HINTS ? "All hints used" : "Get Hint →";
@@ -221,5 +215,3 @@ function resetHints() {
   document.getElementById("placeholder").style.display = "block";
   renderHints();
 }
-
-
