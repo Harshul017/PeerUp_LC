@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Peer Hint</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="header">
+    <span class="header-title">Peer Hint</span>
+    <span class="ai-badge">AI</span>
+  </div>
+
+  <div class="problem-strip">
+    <div class="prob-label">Current problem</div>
+    <div id="problem-name" class="prob-name">Detecting problem...</div>
+  </div>
+
+  <div class="hint-section">
+
+    <div class="hint-progress">
+      <span class="progress-label">Hint</span>
+      <div class="dots-row">
+        <div class="hdot" id="dot-1"></div>
+        <div class="hdot" id="dot-2"></div>
+        <div class="hdot" id="dot-3"></div>
+      </div>
+      <span id="hint-counter" class="progress-label">0 of 3</span>
+    </div>
+
+    <div id="hints-container"></div>
+
+    <div id="placeholder" class="placeholder-text">
+      Click "Get Hint" when you're stuck. I'll guide you step by step without spoiling the answer.
+    </div>
+
+    <div class="btn-row">
+      <button id="btn-reset" class="btn-reset">Reset</button>
+      <button id="btn-next" class="btn-next">Get Hint →</button>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="code-toggle">
+      <div id="toggle" class="toggle off">
+        <div class="toggle-knob"></div>
+      </div>
+      <span class="toggle-label">Use my code as context</span>
+    </div>
+    <div class="powered">powered by Claude</div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
