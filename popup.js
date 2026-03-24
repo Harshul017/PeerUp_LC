@@ -1,4 +1,5 @@
-const API_KEY = "AIzaSyAcgSkOj3UwRrzf_Yrc3wA-N1qZXb_eopI";
+require('dotenv').config();
+const API_KEY = process.env.API_KEY;
 const API_URL =  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${API_KEY}`;
 const MAX_HINTS = 3;
 
